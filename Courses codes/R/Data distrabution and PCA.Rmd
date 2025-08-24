@@ -1,0 +1,129 @@
+---
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+# 第一題
+
+**Ques : 在卡方分佈中，在不同的資料量下進行數據的標準化，數據是否變為常態分佈?**
+
+```{r}
+library(ggplot2)
+library(patchwork)
+```
+
+生成4組分別為20、30、100、1000筆卡方分佈的資料
+
+```{r}
+generate_chisq_data= function(n, seed= 42, df= 3){
+ set.seed(seed)
+ rchisq(n= n, df= df)}
+
+chi_squared_20_data= generate_chisq_data(n= 20)
+chi_squared_30_data= generate_chisq_data(n= 30)
+chi_squared_100_data= generate_chisq_data(n= 100)
+chi_squared_1000_data= generate_chisq_data(n= 1000)
+```
+
+四組資料進行標準化
+
+```{r}
+normalized_chi_squared_20_data= scale(chi_squared_20_data)
+normalized_chi_squared_30_data= scale(chi_squared_30_data)
+normalized_chi_squared_100_data= scale(chi_squared_100_data)
+normalized_chi_squared_1000_data= scale(chi_squared_1000_data)
+```
+
+畫圖
+
+```{r, fig.width= 16, fig.height= 15}
+chi_squared_20_df= data.frame(value= chi_squared_20_data)
+chi_squared_30_df= data.frame(value= chi_squared_30_data)
+chi_squared_100_df= data.frame(value= chi_squared_100_data)
+chi_squared_1000_df= data.frame(value= chi_squared_1000_data)
+normalized_chi_squared_20_df= data.frame(value= normalized_chi_squared_20_data)
+normalized_chi_squared_30_df= data.frame(value= normalized_chi_squared_30_data)
+normalized_chi_squared_100_df= data.frame(value= normalized_chi_squared_100_data)
+normalized_chi_squared_1000_df= data.frame(value= normalized_chi_squared_1000_data)
+
+color= 'white'
+hjust= 0.5
+
+p1= ggplot(chi_squared_20_df, mapping= aes(x= value))+
+  geom_histogram(bins= 11, fill= 'lightblue', color= color)+
+  labs(title= '標準化前20筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p2= ggplot(normalized_chi_squared_20_df, mapping= aes(x= value))+
+  geom_histogram(bins= 10, fill= 'lightblue', color= color)+
+  labs(title= '標準化後20筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p3= ggplot(chi_squared_30_df, mapping= aes(x= value))+
+  geom_histogram(bins= 15, fill= 'red', color= color)+
+  labs(title= '標準化前30筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p4= ggplot(normalized_chi_squared_30_df, mapping= aes(x= value))+
+  geom_histogram(bins= 15, fill= 'red', color= color)+
+  labs(title= '標準化後30筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p5= ggplot(chi_squared_100_df, mapping= aes(x= value))+
+  geom_histogram(bins= 20, fill= 'purple', color= color)+
+  labs(title= '標準化前100筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p6= ggplot(normalized_chi_squared_100_df, mapping= aes(x= value))+
+  geom_histogram(bins= 20, fill= 'purple', color= color)+
+  labs(title= '標準後100筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p7= ggplot(chi_squared_1000_df, mapping= aes(x= value))+
+  geom_histogram(bins= 50, fill= 'orange', color= color)+
+  labs(title= '標準前1000筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+p8= ggplot(normalized_chi_squared_1000_df, mapping= aes(x= value))+
+  geom_histogram(bins= 50, fill= 'orange', color= color)+
+  labs(title= '標準後1000筆資料')+
+  theme(plot.title= element_text(hjust= hjust))
+
+total_plot= (p1 | p2) / (p3 | p4) / (p5 | p6) / (p7 | p8)+
+  plot_annotation(title= '不同資料量標準化前後分布住況', 
+                  theme= theme(plot.title= element_text(size= 18,
+                                                        hjust= hjust,
+                                                        face= 'bold')))
+print(total_plot)
+```
+
+**Ans : 卡方分佈資料，不會因為資料量的多寡及標準化後的影響，而分佈狀況改為常態**
+
+# 第二題
+
+**Ques : 資料標準化前後，主成份分析結果是否一樣?**
+
+讀入資料
+
+```{r}
+filename= 'D:/研究所/1132/智慧行銷管理/Data/pca_food.csv'
+food_data= read.csv(file= filename, row.names= 1)
+```
+
+計算共變異數矩陣及進行PCA
+
+```{r}
+cov_food_data= cov(food_data[, 1: 5])
+pca_food= princomp(covmat= cov_food_data)
+
+summary(pca_food, loading= T)
+```
+
+進行標準化相關係數矩陣進行PCA
+
+```{r}
+pca_normalized_food= princomp(food_data[, 1: 5], cor= T)
+
+summary(pca_normalized_food, loading= T)
+```
+
+**Ans : 標準化前後，所得到的主成份分析結果會不一樣**
+
+**標準化前第一主成份0.2Hamburger+0.939orange+0.276tomato**
+
+**標準化後第一主成份0.496bread+0.576Hamburger+0.340milk+0.225orange+0.506tomato**
