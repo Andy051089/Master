@@ -1,6 +1,9 @@
 #### This Master file showcases the code languages learned during courses and homework or project in master degree.
 
-1. The file "Kaggle" contains the python code, process report and final presentation for the competition.
-   * Data: Real world open source data from Mover database.
+1. The file "Competition" contains the python code, process report and final presentation for the competition held on Kaggle.
+   * Data: Real world open source data from Mover database and hugging face data.
 2. The file "MIMIC-III" contains project cunducted using MIMIC-III database data with python code.
-3. The file "TMUCRD" contains contains project cunducted using Taipei Medical University Clinical Research Database data with MSSQL and python code.
+3. The file "TMUCRD" contains project cunducted using Taipei Medical University Clinical Research Database data with MSSQL and python code.
+4. The file "Questionnaire" contains sunscreen purchase intention analysis with R and python code.
+
+  * #### For training models using traditional methods. The python codes will not be presented, the code for data preprocessing will be presented.
