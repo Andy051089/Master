@@ -3,8 +3,9 @@ from sklearn.model_selection import train_test_split
 import nltk
 import nlpaug.augmenter.word as naw
 
-data= pd.read_csv('D:/研究所/1132/自然語言處理/作業/kaggle_trainset.csv')
-test_data= pd.read_csv('D:/研究所/1132/自然語言處理/作業/kaggle_testset.csv')
+
+data= pd.read_csv('D:/kaggle_trainset.csv')
+test_data= pd.read_csv('D:/kaggle_testset.csv')
 
 label_map = {"neoplasms": 1,
              "digestive system diseases": 2,
@@ -71,5 +72,3 @@ augmentation= train_df.drop("condition", axis= 1)
 augmentation = augmentation.rename(columns={'condition_augment': 'condition'})
 
 final= pd.concat([original, augmentation], axis= 0, ignore_index= True)
-
-final_df.to_csv('D:/研究所/1132/自然語言處理/作業/newonlyone.csv', index= False)
