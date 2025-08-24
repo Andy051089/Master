@@ -4,4 +4,4 @@
    * Data: Real world open source data from Mover database.
 2. The file "MIMIC-III" contains project cunducted using MIMIC-III database data with python code.
 3. The file "TMUCRD" contains project cunducted using Taipei Medical University Clinical Research Database data with MSSQL and python code.
-4. The file "Questionnaire" contains sunscreen purchase analysis with R and python code.
+4. The file "Questionnaire" contains sunscreen purchase intention analysis with R and python code.
