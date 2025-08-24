@@ -1,0 +1,168 @@
+---
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_depth: 3
+---
+
+```{=html}
+
+<style>
+
+body {
+  font-size: 18px;
+}
+
+code.r {
+  font-size: 16px;
+}
+
+pre {
+  font-size: 16px;
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+}
+  
+div.gray {
+  background-color: #efeff5;
+  border-radius: 5px; 
+  padding: 5px;
+}
+
+</style>
+```
+
+**讀入套件及資料**
+
+```{r, warning = FALSE, message = FALSE}
+library(ecodist)
+library(ggplot2)
+library(factoextra)
+library(cluster)
+
+data = USArrests
+```
+
+**資料進行標準化**
+
+```{r}
+normalized_data = scale(data)
+```
+
+**相似度計算使用歐式距離及馬氏距離**
+
+```{r}
+euclidean_distance = dist(normalized_data[, c(1:4)], method = 'euclidean')
+mahalanobis_distance = distance(normalized_data[, c(1:4)], method = 'mahal')
+```
+
+**使用華德法及完全法進行分群**
+
+```{r}
+method = 'ward.D'
+euclidean_distance_cluster_wardd = hclust(euclidean_distance, method = method)
+mahalanobis_distance_cluster_wardd = hclust(mahalanobis_distance, method = method)
+
+method1 = 'complete'
+euclidean_distance_cluster_complete = hclust(euclidean_distance, method = method1)
+mahalanobis_distance_cluster_complete = hclust(mahalanobis_distance, method = method1)
+
+color = 'red'
+
+plot(euclidean_distance_cluster_wardd)
+abline(h = 7, col = color)
+```
+
+::: gray
+- 使用歐式距離 + 華德法可以分四群
+:::
+
+```{r}
+plot(euclidean_distance_cluster_complete)
+abline(h = 3.5, col = color)
+```
+
+::: gray
+- 使用歐式距離 + 完全法可以分四群
+:::
+
+```{r}
+plot(mahalanobis_distance_cluster_wardd)
+abline(h = 30, col = color)
+```
+
+::: gray
+- 使用馬氏距離 + 華德法可以分四群
+:::
+
+```{r}
+plot(mahalanobis_distance_cluster_complete)
+abline(h = 30, col = color)
+```
+
+::: gray
+- 使用馬氏距離 + 完全法可以分三群
+:::
+
+**決定最佳群別**
+```{r}
+linetype = 'dashed'
+k.max = 10
+
+fviz_nbclust(normalized_data[,c(1:4)], 
+             FUNcluster = pam,  
+             method = 'wss', 
+             k.max = k.max) +
+  geom_vline(xintercept = 4, linetype = linetype, color = color)
+```
+
+::: gray
+- 可以分四群
+:::
+
+```{r}
+fviz_nbclust(normalized_data[,c(1:4)], 
+             FUNcluster = pam, 
+             method = 'gap_stat', 
+             k.max = k.max) +
+  geom_vline(xintercept = 4, linetype = linetype, color = color)
+```
+
+::: gray
+- 最高處，可以分四群
+:::
+
+```{r}
+fviz_nbclust(normalized_data[,c(1:4)], 
+             FUNcluster = pam, 
+             method = 'silhouette', 
+             k.max = k.max) +
+  geom_vline(xintercept = 2, linetype = linetype, color = color)
+```
+
+::: gray
+- 最高處，可以分兩群
+:::
+
+**依照上述，分為四群**
+```{r}
+kmedoid.cluster = pam(normalized_data[, c(1:4)], k = 4) 
+fviz_cluster(kmedoid.cluster,       
+             data = normalized_data[, c(1:4)],        
+             geom = c('point', 'text'),  
+             ellipse.type = 'convex')
+
+clusters = kmedoid.cluster$cluster
+data$cluster = as.factor(clusters)
+sorted_index = order(data$cluster)
+sorted_data = data[sorted_index, ]
+sorted_data
+```
+
+::: gray
+- 第四群，鄉村最安全區，謀殺、襲擊、強姦最少
+- 第一群，鄉村第二安全區，謀殺、襲擊、強姦比第四群多
+- 第二群，犯罪都市區，謀殺、襲擊、強姦最多
+- 第三群，都市勉強安全區，謀殺、襲擊、強姦比第二群少一點
+:::

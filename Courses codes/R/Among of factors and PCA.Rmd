@@ -1,0 +1,109 @@
+---
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_depth: 3
+---
+
+```{=html}
+
+<style>
+
+body {
+  font-size: 18px;
+}
+
+code.r {
+  font-size: 16px;
+}
+
+pre {
+  font-size: 16px;
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+}
+  
+div.gray {
+  background-color: #efeff5;
+  border-radius: 5px; 
+  padding: 5px;
+}
+
+</style>
+```
+
+**讀入套件及資料**
+
+```{r}
+library(readxl)
+library(psych)
+
+filename = 'D:/研究所/1132/智慧行銷管理/Data/清潔劑問卷_1.xlsx'
+data = read_excel(filename)
+```
+
+**畫平行分析圖，決定要取幾個因素**
+
+```{r, warning = FALSE, message = FALSE}
+parallel = fa.parallel(data)
+```
+::: gray
+- 藍色線與紅色虛線交叉在2之後，因此總共取2個因素
+:::
+
+**在未旋轉下，選擇兩個因素**
+
+```{r, warning = FALSE}
+pc = fa(
+  r = data, 
+  nfactors = 2, 
+  covar = FALSE, 
+  rotate = 'none'
+)
+pc
+```
+::: gray
+- 沒辦法非常明確的區分出兩群
+:::
+
+**透過旋轉的方式，讓兩群可以清楚的區分**
+
+```{r, warning = FALSE}
+pc_rotate = fa(
+  r = data,
+  nfactors = 2,
+  covar = FALSE,
+  rotate = 'varimax'
+)
+pc_rotate
+```
+::: gray
+- **估計方法 :** 
+    - 使用最小殘差法
+    
+- **因素命名 :**
+    - **第一個因素 :** 
+        - V5: 強效力
+        - V6: 能去污
+        - V7: 使顏色明亮
+        - V8: 能去油污
+        - V9: 適用於油膩污垢
+        - V10: 有芳香
+        - V11: 能去衣領污物
+        - V12: 能去頑固污漬<br/>
+這些項目中有較高的負荷值，故此因素命名為<mark>潔淨效果</mark>  
+
+    - **第二個因素 :**
+       - V1: 對自然織物溫和
+       - V2: 不會傷害顏色
+       - V3: 不會傷害化學合成品
+       - V4: 不會傷害亞麻製品<br/>
+這些項目中有較高的負荷值，故此因素命名為<mark>安全性</mark>    
+
+
+- 模型的RMSR為0.04，數值是\<0.05
+- 第一個因素解釋了4.92的變異，占總變異的41%
+- 第二個因素解釋了2.4的變異，占總變異的20%
+
+:::
