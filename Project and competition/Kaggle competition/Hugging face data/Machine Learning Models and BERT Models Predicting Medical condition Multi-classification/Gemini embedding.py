@@ -3,11 +3,10 @@ from google import genai
 from google.genai import types
 import time 
 
-train_df= pd.read_csv('D:/研究所/1132/自然語言處理/作業/kaggle_trainset.csv')
-test_df= pd.read_csv('D:/研究所/1132/自然語言處理/作業/kaggle_testset.csv')
+train_df= pd.read_csv('D:/kaggle_trainset.csv')
+test_df= pd.read_csv('D:/kaggle_testset.csv')
 
 random_state= 42
-
 
 label_map = {'neoplasms': 1,
              'digestive system diseases': 2,
@@ -106,8 +105,7 @@ embeddings_df_batched_1 = generate_embeddings_dataframe_separate_cols_batched(
 y = train_df['label']
 final_df = pd.concat([y, embeddings_df_batched],axis = 1)
 
-embeddings_df_batched_1.to_csv('D:/研究所/1132/自然語言處理/作業/gemini_emb_test.csv', index= False)
-embeddings_df_batched_1.to_pickle('D:/研究所/1132/自然語言處理/作業/gemini_emb_test.pkl')
+embeddings_df_batched_1.to_csv('D:/gemini_emb_test.csv', index= False)
 
 embedding_model_name = 'models/text-embedding-004'
 embedding_dimension = 3072

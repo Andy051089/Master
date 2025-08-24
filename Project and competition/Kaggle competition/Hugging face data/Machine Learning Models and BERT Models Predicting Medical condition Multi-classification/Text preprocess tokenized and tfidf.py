@@ -6,8 +6,8 @@ from nltk.corpus import stopwords
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-train_df= pd.read_csv('/mnt/d/研究所/1132/自然語言處理/作業/kaggle_trainset.csv')
-test_df= pd.read_csv('/mnt/d/研究所/1132/自然語言處理/作業/kaggle_testset.csv')
+train_df= pd.read_csv('/mnt/d/kaggle_trainset.csv')
+test_df= pd.read_csv('/mnt/d/kaggle_testset.csv')
 
 nlp = spacy.load('en_core_sci_md')
 nlp = spacy.load('en_core_sci_lg')
@@ -63,11 +63,8 @@ stop_words = set(stopwords.words('english'))
 train_df['filtered_tokens'] = train_df['lemmas'].apply(lambda x: [token for token in x if token.lower() not in stop_words])
 test_df['filtered_tokens'] = test_df['lemmas'].apply(lambda x: [token for token in x if token.lower() not in stop_words])
 
-train_df.to_csv('/mnt/d/研究所/1132/自然語言處理/作業/train_tokenized_1.csv', index= False)
-train_df.to_pickle('/mnt/d/研究所/1132/自然語言處理/作業/train_tokenized_1.pkl')
-
-test_df.to_csv('/mnt/d/研究所/1132/自然語言處理/作業/test_tokenized_1.csv', index= False)
-test_df.to_pickle('/mnt/d/研究所/1132/自然語言處理/作業/test_tokenized_1.pkl')
+train_df.to_csv('/mnt/d/train_tokenized_1.csv', index= False)
+test_df.to_csv('/mnt/d/test_tokenized_1.csv', index= False)
 
 train_df['processed_text'] = train_df['filtered_tokens'].apply(lambda x: ' '.join(x))
 test_df['processed_text'] = test_df['filtered_tokens'].apply(lambda x: ' '.join(x))
@@ -85,5 +82,5 @@ final_test = pd.DataFrame(test_tfidf_matrix.toarray(), columns=feature_names)
 
 final_train= pd.concat([train_df['label'], final_train],axis=1)
 
-final_train.to_pickle('/mnt/d/研究所/1132/自然語言處理/作業/final_train_use.pkl')
-final_test.to_pickle('/mnt/d/研究所/1132/自然語言處理/作業/final_test_use.pkl')
+final_train.to_pickle('/mnt/d/final_train_use.pkl')
+final_test.to_pickle('/mnt/d/final_test_use.pkl')
