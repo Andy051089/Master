@@ -1,0 +1,116 @@
+---
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_depth: 3
+---
+
+```{=html}
+
+<style>
+
+body {
+  font-size: 18px;
+}
+
+code.r {
+  font-size: 16px;
+}
+
+pre {
+  font-size: 16px;
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+}
+  
+div.gray {
+  background-color: #efeff5;
+  border-radius: 5px; 
+  padding: 5px;
+}
+
+</style>
+```
+**讀入套件及資料**
+
+```{r}
+library(psych)
+
+filename = 'D:/研究所/1132/智慧行銷管理/期末報告/Preprocessed_data.csv'
+data = read.csv(filename)
+```
+**排除基本資料**
+```{r}
+data = data[, 13:39]
+```
+**計算KMO值**
+```{r}
+total_kmo = KMO(data)
+round(total_kmo$MSA, 2)
+```
+::: gray
+- KMO值為0.94大於0.9，適合做因素分析
+:::
+**球形檢驗**
+```{r}
+bartlett_test_result = cortest.bartlett(R = data)
+```
+::: gray
+- KMO值為0.94大於0.9，適合做因素分析
+:::
+**決定取幾個因素**
+```{r}
+pc_fa_fac = fa.parallel(data)
+pc_fa_fac$ncomp
+```
+::: gray
+- 平行分析可以取3個因素
+:::
+```{r}
+pc_fa_fac$nfact
+```
+::: gray
+- 碎石圖可以取6個因素
+:::
+```{r, fig.show='hide'}
+nfac = nfactors(data)
+which.min(nfac$map)
+```
+::: gray
+- 最小平均偏相關係數可以取6個因素
+- **綜上，取6個因素**
+:::
+```{r}
+pc = fa(
+  r = data, 
+  nfactors = 6, 
+  covar = FALSE, 
+  rotate = 'none')
+pc
+```
+::: gray
+- 在不進行轉軸狀況下，無法清楚區分
+:::
+```{r}
+pc_rotate = fa(
+  r = data,
+  nfactors = 6,
+  covar = FALSE,
+  rotate = 'varimax')
+pc_rotate
+```
+::: gray
+- 進行轉軸最大變異法時，可以清楚區分出6項
+- 估計方法為最小殘差法
+- 各因素負荷值達0.4以上
+- 因素結果與原問卷設計之各構面一致
+- 第一因素為品質價值解釋了5.16個原始變數的變異量，解釋了所有原始變數總變異量的19%
+- 第二因素為網路口碑解釋了4.38個原始變數的變異量，解釋了所有原始變數總變異量的16%
+- 第三因素為社會價值解釋了4.12個原始變數的變異量，解釋了所有原始變數總變異量的15%
+- 第四因素為情緒價值解釋了3.23個原始變數的變異量，解釋了所有原始變數總變異量的12%
+- 第五因素為價格價值解釋了3.03個原始變數的變異量，解釋了所有原始變數總變異量的11%
+- 第六因素為購買意願解釋了2.76個原始變數的變異量，解釋了所有原始變數總變異量的10%
+- 6個因素一共解釋了總變異的84% 
+- 模型的RMSR為0.01，數值<0.05
+:::

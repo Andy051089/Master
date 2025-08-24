@@ -1,0 +1,112 @@
+---
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_depth: 3
+---
+
+```{=html}
+
+<style>
+
+body {
+  font-size: 18px;
+}
+
+code.r {
+  font-size: 16px;
+}
+
+pre {
+  font-size: 16px;
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+}
+  
+div.gray {
+  background-color: #efeff5;
+  border-radius: 5px; 
+  padding: 5px;
+}
+
+</style>
+```
+
+**讀入套件及資料**
+
+```{r, message = FALSE}
+library(HH)
+
+filename = 'D:/研究所/1132/智慧行銷管理/期末報告/Preprocessed_data.csv'
+data = read.csv(filename)
+```
+
+**重複計算VIF，每次刪除1個，直到沒有數值大於10**
+```{r}
+removed_cols = c()
+
+while(TRUE){
+  vif = vif(data, y.name = 'overall_purchase_intention_anessa')
+  high_vif_names = names(vif[vif >= 10])
+  
+  if (length(high_vif_names) > 0){
+    highest_vif_names = names(which.max(vif))
+    highest_vif = max(vif)
+    data = data[, !names(data) %in% highest_vif_names]
+    removed_cols = c(removed_cols, highest_vif_names, highest_vif)
+  } else{
+    break
+  }
+}
+removed_cols
+```
+::: gray
+- 移除的變項及VIF值分別為
+-  social_value_q3 (11.877534354531)
+-  purchase_intention_q1 (11.345952331631)
+-  quality_value_q4 (10.9448223723058)
+:::
+
+**轉換變項至類別，確保後續建立羅吉斯回歸會使用虛擬變數**
+```{r}
+cols_to_factor = c('gender', 'age', 'education', 'career', 'living_location', 'monthly_income',
+                   'monthly_spending', 'used_product',  'time_used', 'usage_frequency', 
+                   'most_frequently_used_product', 'anessa_products_used')
+data[cols_to_factor] = lapply(data[cols_to_factor], as.factor)
+```
+**建立移除高共線性特徵的羅吉斯回歸及使用向後移除法**
+```{r}
+full = glm(overall_purchase_intention_anessa ~ ., family = binomial, data = data)
+backwards = step(full, trace = 0)
+```
+**計算使用所有特徵之大模型，及向後移除特徵小模型之離差**
+```{r}
+lrt_result = anova(backwards, full, test = 'Chisq')
+lrt_result
+```
+::: gray
+- p=0.6975，大於0.05，無法拒絕虛無假設，故小模型是合適的
+:::
+```{r}
+summary(backwards)
+```
+::: gray
+- 顯著之特徵項為monthly_income usage_frequency purchase_intention_q1 purchase_intention_q2 emotional_value_q1 price_value_q2 social_value_q2
+:::
+```{r}
+model_summary = summary(backwards)
+coef_table = as.data.frame(model_summary$coefficients)
+coef_table$Odds_Ratio = round(exp(coef_table$Estimate), 2)
+coef_table$Odds_Change_Percent = round((exp(coef_table$Estimate) - 1) * 100, 2)
+coef_table
+```
+::: gray
+- 在固定其他不變之下，教育程度為大學大專四技五專，消費者對Anessa的實際購買意願勝算是國高中職的0.07倍。
+- 在固定其他不變之下，教育程度為碩士博士，消費者對Anessa的實際購買意願勝算是國高中職的0.05倍。
+- 在固定其他不變之下，使用過Anessa一種產品，消費者對Anessa的實際購買意願勝算是沒有使用過Anessa的4.91倍。
+- 在固定其他不變之下，考慮購買Anessa產品每增加一個點，消費者對Anessa的實際購買意願勝算會增加793.38%。
+- 在固定其他不變之下，以這個價格來說，Anessa安耐曬商品是不錯的產品每增加一個點，消費者對Anessa的實際購買意願勝算會增加483.16%。
+- 在固定其他不變之下，Anessa安耐曬商品能改善他人對我的看法每增加一個點，消費者對Anessa的實際購買意願勝算會增加165.35%。
+- 在固定其他不變之下，網路上對Anessa安耐曬商品評論，有助於我更準確地判斷產品的品質每增加一個點，消費者對Anessa的實際購買意願勝算會減少57.69%。
+:::

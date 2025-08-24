@@ -1,0 +1,127 @@
+---
+output:
+  prettydoc::html_pretty:
+    toc: true
+    toc_depth: 3
+---
+
+```{=html}
+
+<style>
+
+body {
+  font-size: 18px;
+}
+
+code.r {
+  font-size: 16px;
+}
+
+pre {
+  font-size: 16px;
+  white-space: pre-wrap;  
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+}
+  
+div.gray {
+  background-color: #efeff5;
+  border-radius: 5px; 
+  padding: 5px;
+}
+
+</style>
+```
+**讀入套件及資料**
+
+```{r}
+library(psych)
+
+filename = 'D:/研究所/1132/智慧行銷管理/期末報告/Preprocessed_data.csv'
+data = read.csv(filename)
+```
+**排除基本資料切分出各構面題目**
+
+```{r}
+data = data[, 13:39]
+purchase_intention = data[, 1:3]
+quality_value = data[, 4:9]
+emotional_value = data[, 10:14]
+price_value = data[, 15:18]
+social_value = data[, 19:22]
+online_reviews = data[, 23:27]
+```
+
+**計算構面內單題間相關性、單題與構面之相關性、構面之Cronbach's alpha**
+```{r}
+corr_alpha_result = function(df){
+  corr_results = cor(df)
+  alpha_results = alpha(df)
+  print(corr_results)
+  print(alpha_results)
+  cat('---------------------------------------------------------------\n')
+  print(round(corr_results[lower.tri(corr_results, diag = FALSE)], 2))
+  print(round(alpha_results$item.stats$r.drop, 2))
+  print(round(alpha_results$total$raw_alpha, 2))}
+```
+**購買意願構面**
+```{r}
+corr_alpha_result(purchase_intention)
+```
+::: gray
+- 各題間相關係數為0.94、0.85、0.84皆大於0.3
+- 各題與構面相關係數為0.93、0.93、0.86皆大於0.5
+- 構面Cronbach's alpha為0.95
+:::
+
+**品質價值構面**
+```{r}
+corr_alpha_result(quality_value)
+```
+::: gray
+- 各題間相關係數為0.85、0.86、0.84、0.78、0.81、0.83、0.83、0.78、0.84、0.91、0.82、0.87、0.87、0.91、0.88皆大於0.3
+- 各題與構面相關係數為0.88、0.88、0.92、0.94、0.88、0.92皆大於0.5
+- 構面Cronbach's alpha為0.97
+:::
+
+**情緒價值構面**
+```{r}
+corr_alpha_result(emotional_value)
+```
+::: gray
+- 各題間相關係數為0.81、0.73、0.81、0.77、0.74、0.82、0.78、0.82、0.84、0.88皆大於0.3
+- 各題與構面相關係數為0.84、0.85、0.84、0.91、0.89皆大於0.5
+- 構面Cronbach's alpha為0.95
+:::
+
+**價格價值構面**
+```{r}
+corr_alpha_result(price_value)
+```
+::: gray
+- 各題間相關係數為0.75、0.77、0.76、0.83、0.76、0.78皆大於0.3
+- 各題與構面相關係數為0.82、0.85、0.87、0.83皆大於0.5
+- 構面Cronbach's alpha為0.93
+:::
+
+**社會價值構面**
+```{r}
+corr_alpha_result(social_value)
+```
+::: gray
+- 各題間相關係數為0.86、0.88、0.86、0.90、0.86、0.92皆大於0.3
+- 各題與構面相關係數為0.90、0.91、0.94、0.92皆大於0.5
+- 構面Cronbach's alpha為0.97
+:::
+
+**網路口碑構面**
+```{r}
+corr_alpha_result(online_reviews)
+```
+::: gray
+- 各題間相關係數為0.71、0.80、0.84、0.80、0.67、0.68、0.65、0.87、0.85、0.89皆大於0.3
+- 各題與構面相關係數為0.86、0.72、0.88、0.91、0.88皆大於0.5
+- 構面Cronbach's alpha為0.94
+
+- **總體而言，各構面題目與題目間相關係數皆大於0.3，題目與該構面相關係數皆大於0.5，構面Cronbach's Alpha皆大於0.7，問卷信度良好**
+:::
